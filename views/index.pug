@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  .content
+    h1 Bem-vindo à WW Loja de Equipamentos de TI!
+    p Aqui você pode encontrar e cadastrar produtos de informática.
+
+    h2 Produtos Disponíveis
+    if produtos.length
+      .produtos-grid
+        each produto in produtos
+          .produto-card
+            h3= produto.nome
+            p.descricao Descrição: #{produto.descricao}
+            p.preco Preço: R$ #{produto.preco}
+            a.pure-button(href='#') Comprar
+            a.pure-button.pure-button-primary(href='#') Detalhes
+    else
+      p Nenhum produto disponível no momento.

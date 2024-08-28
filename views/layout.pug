@@ -1,0 +1,24 @@
+doctype html
+html(lang="pt-br")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title #{title} - WW Loja
+    link(rel="stylesheet", href="/pure-min.css")
+    link(rel="stylesheet", href="/style.css")
+  body
+    header
+      .pure-menu.pure-menu-horizontal
+        a.pure-menu-heading.pure-menu-link(href="/") WW Loja
+        ul.pure-menu-list
+          li.pure-menu-item
+            a.pure-menu-link(href="/produtos") Produtos
+          li.pure-menu-item
+            a.pure-menu-link(href="/login") Login
+          li.pure-menu-item
+            a.pure-menu-link(href="/cadastro") Cadastro
+    main
+      block content
+    footer
+      .footer-content
+        p &copy; 2024 WW Loja. Todos os direitos reservados.

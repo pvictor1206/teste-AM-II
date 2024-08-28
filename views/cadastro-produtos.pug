@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  .l-box-lrg.is-center
+    h1.content-head-ribbon.content-head Cadastro de Produto
+    if error
+      p.erro #{error}
+    form.pure-form.pure-form-stacked(action="/cadastro-produtos", method="post")
+      fieldset
+        label(for="nomeProduto") Nome do Produto:
+        input(type="text", id="nomeProduto", name="nomeProduto", required)
+        label(for="descricao") Descrição:
+        textarea(id="descricao", name="descricao", required)
+        label(for="preco") Preço:
+        input(type="number", step="0.01", id="preco", name="preco", required)
+        button.pure-button.pure-button-primary(type="submit") Cadastrar Produto
