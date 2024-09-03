@@ -106,6 +106,31 @@ h1, h2 {
   color: #333;
 }
 
+/* Ajustar estilo e espaçamento dos botões */
+.produto-card .buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.produto-card .buttons .pure-button {
+  padding: 0.5em 1.5em; /* Ajusta o padding dos botões */
+  font-size: 16px; /* Tamanho da fonte */
+  width: auto; /* Define a largura automática */
+}
+
+.produto-card .buttons .pure-button-primary {
+  background-color: #1f8dd6;
+  color: white;
+  border: none;
+}
+
+.produto-card .buttons .pure-button-primary:hover {
+  background-color: #155b9a;
+}
+
+
 .pure-button {
   background-color: #1f8dd6;
   color: white;
@@ -144,6 +169,7 @@ h1, h2 {
 }
 
 .pure-form-stacked input[type="text"],
+.pure-form-stacked input[type="number"],
 .pure-form-stacked input[type="email"],
 .pure-form-stacked input[type="password"] {
   width: 100%;

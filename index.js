@@ -37,13 +37,13 @@ app.post('/login', (req, res) => {
 });
 
 // Rota de cadastro
-app.get('/cadastro', (req, res) => {
-    res.render('cadastro');
+app.get('/cadastro-produtos', (req, res) => {
+    res.render('cadastro-produtos');
 });
 
-app.post('/cadastro', (req, res) => {
+app.post('/cadastro-produtos', (req, res) => {
     const { nome, email, senha } = req.body;
-    res.render('cadastro', { error: 'Erro ao cadastrar usuário' });
+    res.render('cadastro-produtos', { error: 'Erro ao cadastrar produto' });
 });
 
 app.listen(port, () => {

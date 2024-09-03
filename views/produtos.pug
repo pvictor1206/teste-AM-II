@@ -10,7 +10,9 @@ block content
             h3= produto.nome
             p.descricao Descrição: #{produto.descricao}
             p.preco Preço: R$ #{produto.preco}
-            a.pure-button(href='#') Comprar
-            a.pure-button.pure-button-primary(href='#') Detalhes
+            .buttons
+              a.pure-button.pure-button-primary(href=`/editar-produto/${produto.id}`) Editar
+              form(action=`/excluir-produto/${produto.id}`, method="POST", onsubmit="return confirm('Tem certeza que deseja excluir este produto?');")
+                button.pure-button(type="submit") Excluir
     else
       p Nenhum produto disponível no momento.
