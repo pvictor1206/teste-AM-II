@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
+    "firebase": "^10.13.2",
+    "firebase-admin": "^12.5.0",
     "pug": "^3.0.3"
   }
 }
