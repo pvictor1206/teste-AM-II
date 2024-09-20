@@ -1,12 +1,12 @@
 const express = require('express');
-const { auth, signInWithEmailAndPassword, db, collection, addDoc } = require('./firebase'); // Inclua Firestore
+const { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs } = require('./firebase'); // Certifique-se de que getDocs está importado corretamente
 const app = express();
 const port = 3000;
 
 app.set('view engine', 'pug');
 app.set('views', './views');
 
-app.use(express.urlencoded({ extended: true })); // Para interpretar os dados do formulário
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // Rota principal
@@ -38,7 +38,7 @@ app.get('/cadastro-produtos', (req, res) => {
 
 // Rota de cadastro de produtos (POST)
 app.post('/cadastro-produtos', async (req, res) => {
-    const { nomeProduto, descricao, preco } = req.body; // Captura os dados enviados pelo formulário
+    const { nomeProduto, descricao, preco } = req.body;
 
     try {
         // Salvar o produto no Firestore
@@ -48,7 +48,7 @@ app.post('/cadastro-produtos', async (req, res) => {
             preco: parseFloat(preco)
         });
 
-        res.redirect('/produtos'); // Redireciona para a lista de produtos após o cadastro
+        res.redirect('/produtos');
     } catch (error) {
         res.render('cadastro-produtos', { error: 'Erro ao cadastrar produto: ' + error.message });
     }
@@ -57,16 +57,18 @@ app.post('/cadastro-produtos', async (req, res) => {
 // Rota para exibir produtos (GET)
 app.get('/produtos', async (req, res) => {
     try {
-        // Busca todos os produtos cadastrados no Firestore
+        // Buscar todos os produtos no Firestore
         const produtosSnapshot = await getDocs(collection(db, 'produtos'));
         const produtos = produtosSnapshot.docs.map(doc => ({
-            id: doc.id, // Adiciona o ID do documento
-            ...doc.data() // Adiciona os dados do documento
+            id: doc.id,
+            ...doc.data()
         }));
 
-        // Renderiza a página de produtos, garantindo que produtos seja um array
+        console.log(produtos); // Verificar se os produtos estão sendo retornados corretamente
+
         res.render('produtos', { produtos: produtos.length ? produtos : [] });
     } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
         res.render('produtos', { produtos: [], error: 'Erro ao buscar produtos: ' + error.message });
     }
 });
@@ -79,7 +81,7 @@ app.get('/home', (req, res) => {
 // Rota de logout
 app.get('/logout', (req, res) => {
     auth.signOut().then(() => {
-        res.redirect('/login'); // Redireciona o usuário para a página de login após o logout
+        res.redirect('/login');
     }).catch((error) => {
         res.send('Erro ao fazer logout: ' + error.message);
     });
