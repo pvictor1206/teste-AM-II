@@ -1,5 +1,6 @@
 const { initializeApp } = require('firebase/app');
 const { getAuth, signInWithEmailAndPassword } = require('firebase/auth'); // Importe o método signInWithEmailAndPassword
+const { getFirestore, collection, addDoc } = require('firebase/firestore'); // Importe Firestore
 
 const firebaseConfig = {
   apiKey: "AIzaSyCuDd0D1C1v5O3DbGFHkJZFj3gHODVe2sw",
@@ -17,4 +18,7 @@ const app = initializeApp(firebaseConfig);
 // Inicializa o serviço de autenticação
 const auth = getAuth(app);
 
-module.exports = { auth, signInWithEmailAndPassword }; // Exporte o signInWithEmailAndPassword também
+// Inicializa o Firestore
+const db = getFirestore(app); // Inicialize o Firestore
+
+module.exports = { auth, signInWithEmailAndPassword, db, collection, addDoc }; // Exporte Firestore
