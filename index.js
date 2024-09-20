@@ -1,5 +1,5 @@
 const express = require('express');
-const { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs, deleteDoc, doc } = require('./firebase'); // Inclua `doc`
+const { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc  } = require('./firebase'); // Inclua `doc`
 const app = express();
 const port = 3000;
 
@@ -89,6 +89,53 @@ app.post('/excluir-produto/:id', async (req, res) => {
     } catch (error) {
         console.error('Erro ao excluir produto:', error);
         res.send('Erro ao excluir produto: ' + error.message);
+    }
+});
+
+// Rota para exibir o formulário de edição de um produto (GET)
+app.get('/editar-produto/:id', async (req, res) => {
+    const produtoId = req.params.id; // Captura o ID do produto da URL
+
+    try {
+        // Referência ao documento do Firestore
+        const produtoRef = doc(db, 'produtos', produtoId);
+
+        // Buscar o documento do Firestore
+        const produtoSnapshot = await getDoc(produtoRef);
+
+        if (produtoSnapshot.exists()) {
+            const produto = { id: produtoSnapshot.id, ...produtoSnapshot.data() };
+            res.render('editar-produto', { produto });
+        } else {
+            res.send('Produto não encontrado.');
+        }
+    } catch (error) {
+        console.error('Erro ao buscar produto:', error);
+        res.send('Erro ao buscar produto: ' + error.message);
+    }
+});
+
+// Rota para atualizar um produto (POST)
+app.post('/editar-produto/:id', async (req, res) => {
+    const produtoId = req.params.id; // Captura o ID do produto da URL
+    const { nomeProduto, descricao, preco } = req.body; // Captura os novos dados do formulário
+
+    try {
+        // Referência ao documento do Firestore
+        const produtoRef = doc(db, 'produtos', produtoId);
+
+        // Atualizar o documento no Firestore
+        await updateDoc(produtoRef, {
+            nome: nomeProduto,
+            descricao: descricao,
+            preco: parseFloat(preco)
+        });
+
+        // Redireciona para a lista de produtos após a edição
+        res.redirect('/produtos');
+    } catch (error) {
+        console.error('Erro ao editar produto:', error);
+        res.send('Erro ao editar produto: ' + error.message);
     }
 });
 

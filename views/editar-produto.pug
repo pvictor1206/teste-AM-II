@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  .content
+    h2 Editar Produto
+    if produto
+      form.pure-form.pure-form-stacked(action=`/editar-produto/${produto.id}`, method="POST")
+        fieldset
+          label(for="nomeProduto") Nome do Produto:
+          input(type="text", id="nomeProduto", name="nomeProduto", value=produto.nome, required)
+
+          label(for="descricao") Descrição:
+          textarea(id="descricao", name="descricao", required)= produto.descricao
+
+          label(for="preco") Preço:
+          input(type="number", step="0.01", id="preco", name="preco", value=produto.preco, required)
+
+          button.pure-button.pure-button-primary(type="submit") Salvar Alterações
+    else
+      p Produto não encontrado.
