@@ -1,5 +1,5 @@
 const express = require('express');
-const { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs } = require('./firebase'); // Certifique-se de que getDocs está importado corretamente
+const { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs, deleteDoc, doc } = require('./firebase'); // Inclua `doc`
 const app = express();
 const port = 3000;
 
@@ -70,6 +70,25 @@ app.get('/produtos', async (req, res) => {
     } catch (error) {
         console.error('Erro ao buscar produtos:', error);
         res.render('produtos', { produtos: [], error: 'Erro ao buscar produtos: ' + error.message });
+    }
+});
+
+// Rota para excluir um produto (POST)
+app.post('/excluir-produto/:id', async (req, res) => {
+    const produtoId = req.params.id; // Captura o ID do produto da URL
+
+    try {
+        // Referência ao documento do Firestore
+        const produtoRef = doc(db, 'produtos', produtoId);
+
+        // Excluir o documento
+        await deleteDoc(produtoRef);
+
+        // Redireciona para a lista de produtos após a exclusão
+        res.redirect('/produtos');
+    } catch (error) {
+        console.error('Erro ao excluir produto:', error);
+        res.send('Erro ao excluir produto: ' + error.message);
     }
 });
 

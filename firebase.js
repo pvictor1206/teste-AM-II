@@ -1,6 +1,6 @@
 const { initializeApp } = require('firebase/app');
 const { getAuth, signInWithEmailAndPassword } = require('firebase/auth');
-const { getFirestore, collection, addDoc, getDocs } = require('firebase/firestore');
+const { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } = require('firebase/firestore');
 
 
 const firebaseConfig = {
@@ -22,4 +22,5 @@ const auth = getAuth(app);
 // Inicializa o Firestore
 const db = getFirestore(app); // Inicialize o Firestore
 
-module.exports = { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs };
+
+module.exports = { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs, deleteDoc, doc };
