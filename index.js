@@ -1,5 +1,5 @@
 const express = require('express');
-const { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc  } = require('./firebase'); // Inclua `doc`
+const { auth, signInWithEmailAndPassword, db, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc  } = require('./firebase'); // Inclua doc
 const app = express();
 const port = 3000;
 
@@ -9,14 +9,29 @@ app.set('views', './views');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Rota principal
+// Middleware para verificar autenticação e passar o estado para as views
+app.use((req, res, next) => {
+    const user = auth.currentUser;
+
+    // Verifica se há um usuário autenticado
+    if (user) {
+        res.locals.isAuthenticated = true; // Passa a variável isAuthenticated para todas as views
+    } else {
+        res.locals.isAuthenticated = false; // Usuário não está logado
+    }
+
+    next();
+});
+
+// Rota principal (Home)
 app.get('/', (req, res) => {
-    res.render('index');
+    const user = auth.currentUser; // Verifica se há um usuário logado
+    res.render('index', { isHomePage: true, isAuthenticated: !!user }); // Definir isHomePage como true
 });
 
 // Rota de login (GET)
 app.get('/login', (req, res) => {
-    res.render('login');
+    res.render('login', { isAuthenticated: false, isHomePage: false }); // Definir isHomePage como false
 });
 
 // Exemplo de login usando autenticação Firebase (POST)
@@ -33,7 +48,8 @@ app.post('/login', async (req, res) => {
 
 // Rota de cadastro de produtos (GET)
 app.get('/cadastro-produtos', (req, res) => {
-    res.render('cadastro-produtos');
+    const user = auth.currentUser; // Verifica se há um usuário logado
+    res.render('cadastro-produtos', { isAuthenticated: !!user, isHomePage: false });
 });
 
 // Rota de cadastro de produtos (POST)
@@ -56,92 +72,18 @@ app.post('/cadastro-produtos', async (req, res) => {
 
 // Rota para exibir produtos (GET)
 app.get('/produtos', async (req, res) => {
+    const user = auth.currentUser; // Verifica se há um usuário logado
     try {
-        // Buscar todos os produtos no Firestore
         const produtosSnapshot = await getDocs(collection(db, 'produtos'));
         const produtos = produtosSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
 
-        console.log(produtos); // Verificar se os produtos estão sendo retornados corretamente
-
-        res.render('produtos', { produtos: produtos.length ? produtos : [] });
+        res.render('produtos', { produtos, isAuthenticated: !!user, isHomePage: false });
     } catch (error) {
-        console.error('Erro ao buscar produtos:', error);
-        res.render('produtos', { produtos: [], error: 'Erro ao buscar produtos: ' + error.message });
+        res.render('produtos', { produtos: [], error: 'Erro ao buscar produtos', isAuthenticated: !!user });
     }
-});
-
-// Rota para excluir um produto (POST)
-app.post('/excluir-produto/:id', async (req, res) => {
-    const produtoId = req.params.id; // Captura o ID do produto da URL
-
-    try {
-        // Referência ao documento do Firestore
-        const produtoRef = doc(db, 'produtos', produtoId);
-
-        // Excluir o documento
-        await deleteDoc(produtoRef);
-
-        // Redireciona para a lista de produtos após a exclusão
-        res.redirect('/produtos');
-    } catch (error) {
-        console.error('Erro ao excluir produto:', error);
-        res.send('Erro ao excluir produto: ' + error.message);
-    }
-});
-
-// Rota para exibir o formulário de edição de um produto (GET)
-app.get('/editar-produto/:id', async (req, res) => {
-    const produtoId = req.params.id; // Captura o ID do produto da URL
-
-    try {
-        // Referência ao documento do Firestore
-        const produtoRef = doc(db, 'produtos', produtoId);
-
-        // Buscar o documento do Firestore
-        const produtoSnapshot = await getDoc(produtoRef);
-
-        if (produtoSnapshot.exists()) {
-            const produto = { id: produtoSnapshot.id, ...produtoSnapshot.data() };
-            res.render('editar-produto', { produto });
-        } else {
-            res.send('Produto não encontrado.');
-        }
-    } catch (error) {
-        console.error('Erro ao buscar produto:', error);
-        res.send('Erro ao buscar produto: ' + error.message);
-    }
-});
-
-// Rota para atualizar um produto (POST)
-app.post('/editar-produto/:id', async (req, res) => {
-    const produtoId = req.params.id; // Captura o ID do produto da URL
-    const { nomeProduto, descricao, preco } = req.body; // Captura os novos dados do formulário
-
-    try {
-        // Referência ao documento do Firestore
-        const produtoRef = doc(db, 'produtos', produtoId);
-
-        // Atualizar o documento no Firestore
-        await updateDoc(produtoRef, {
-            nome: nomeProduto,
-            descricao: descricao,
-            preco: parseFloat(preco)
-        });
-
-        // Redireciona para a lista de produtos após a edição
-        res.redirect('/produtos');
-    } catch (error) {
-        console.error('Erro ao editar produto:', error);
-        res.send('Erro ao editar produto: ' + error.message);
-    }
-});
-
-// Rota para a página 'home' após login bem-sucedido
-app.get('/home', (req, res) => {
-    res.render('home');
 });
 
 // Rota de logout
@@ -156,4 +98,17 @@ app.get('/logout', (req, res) => {
 // Inicialização do servidor
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
+});
+
+// Rota para a página 'home' após login bem-sucedido
+app.get('/home', (req, res) => {
+    const user = auth.currentUser; // Verifica se há um usuário logado
+    if (user) {
+        console.log("Usuário autenticado:", user.email);
+        // Renderiza a página home se estiver autenticado
+        res.render('home', { isAuthenticated: true, isHomePage: true });
+    } else {
+        // Redireciona para login se não estiver autenticado
+        //res.redirect('/login');
+    }
 });
