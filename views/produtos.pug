@@ -7,6 +7,8 @@ block content
       .produtos-grid
         each produto in produtos
           .produto-card
+            if produto.imagemURL
+              img(src=produto.imagemURL alt="Imagem de #{produto.nome}" width="200" height="200") 
             h3= produto.nome
             p.descricao Descrição: #{produto.descricao}
             p.preco Preço: R$ #{produto.preco}

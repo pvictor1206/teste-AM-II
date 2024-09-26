@@ -4,7 +4,7 @@ block content
   .content
     h2 Editar Produto
     if produto
-      form.pure-form.pure-form-stacked(action=`/editar-produto/${produto.id}`, method="POST")
+      form.pure-form.pure-form-stacked(action=`/editar-produto/${produto.id}`, method="POST", enctype="multipart/form-data")
         fieldset
           label(for="nomeProduto") Nome do Produto:
           input(type="text", id="nomeProduto", name="nomeProduto", value=produto.nome, required)
@@ -14,6 +14,9 @@ block content
 
           label(for="preco") Preço:
           input(type="number", step="0.01", id="preco", name="preco", value=produto.preco, required)
+
+          label(for="imagemProduto") Imagem do Produto (deixe vazio se não quiser mudar a imagem):
+          input(type="file", id="imagemProduto", name="imagemProduto")
 
           button.pure-button.pure-button-primary(type="submit") Salvar Alterações
     else

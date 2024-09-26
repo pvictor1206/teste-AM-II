@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer'); // Middleware para lidar com uploads de arquivos
-const { auth, signInWithEmailAndPassword, db, storage, ref, uploadBytes, getDownloadURL, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc } = require('./firebase');
+const { auth, signInWithEmailAndPassword, db, storage, ref, uploadBytes, getDownloadURL, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, deleteObject } = require('./firebase');
 const app = express();
 const port = 3000;
 
@@ -134,33 +134,100 @@ app.get('/home', (req, res) => {
     }
 });
 
-// Rota de exclusão com logs
+// Rota de exclusão com logs e exclusão da imagem
 app.post('/excluir-produto/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        console.log("Excluindo produto com ID:", id);
-        await deleteDoc(doc(db, 'produtos', id));
-        res.redirect('/produtos');
+        // Buscar o documento do Firestore para obter a URL da imagem
+        const produtoRef = doc(db, 'produtos', id);
+        const produtoSnapshot = await getDoc(produtoRef);
+
+        if (produtoSnapshot.exists()) {
+            const produtoData = produtoSnapshot.data();
+            console.log("Produto encontrado:", produtoData);
+
+            // Se houver uma URL de imagem, excluí-la do Storage
+            if (produtoData.imagemURL) {
+                const storageRef = ref(storage, `produtos/${id}/imagem`);
+                try {
+                    console.log("Excluindo imagem associada ao produto:", produtoData.imagemURL);
+                    await deleteObject(storageRef); // Excluir a imagem do Firebase Storage
+                    console.log("Imagem excluída com sucesso.");
+                } catch (imageDeleteError) {
+                    console.error("Erro ao excluir imagem:", imageDeleteError);
+                }
+            } else {
+                console.log("Produto não possui imagem associada.");
+            }
+
+            // Excluir o documento do produto no Firestore
+            console.log("Excluindo produto com ID:", id);
+            await deleteDoc(produtoRef);
+            console.log("Produto excluído com sucesso.");
+
+            res.redirect('/produtos');
+        } else {
+            console.log("Produto não encontrado com ID:", id);
+            res.send('Produto não encontrado.');
+        }
     } catch (error) {
         console.error("Erro ao excluir produto:", error);
         res.render('produtos', { error: 'Erro ao excluir produto: ' + error.message });
     }
 });
 
-// Rota de edição com logs
-app.post('/editar-produto/:id', async (req, res) => {
+// Rota de edição com logs e atualização de imagem
+app.post('/editar-produto/:id', upload.single('imagemProduto'), async (req, res) => {
     const { id } = req.params;
     const { nomeProduto, descricao, preco } = req.body;
+    const imagemProduto = req.file; // Captura a nova imagem, se enviada
 
     try {
         console.log("Editando produto com ID:", id);
-        await updateDoc(doc(db, 'produtos', id), {
-            nome: nomeProduto,
-            descricao: descricao,
-            preco: parseFloat(preco)
-        });
-        res.redirect('/produtos');
+
+        // Referência ao documento do Firestore
+        const produtoRef = doc(db, 'produtos', id);
+        const produtoSnapshot = await getDoc(produtoRef);
+
+        if (produtoSnapshot.exists()) {
+            const produtoData = produtoSnapshot.data();
+
+            // Atualiza os campos básicos do produto
+            const updateData = {
+                nome: nomeProduto,
+                descricao: descricao,
+                preco: parseFloat(preco),
+            };
+
+            // Se uma nova imagem foi enviada, precisamos substituir a anterior
+            if (imagemProduto) {
+                // Se o produto tiver uma imagem antiga, excluí-la do Storage
+                if (produtoData.imagemURL) {
+                    const oldImageRef = ref(storage, `produtos/${id}/imagem`);
+                    await deleteObject(oldImageRef);
+                    console.log("Imagem antiga excluída com sucesso.");
+                }
+
+                // Fazer o upload da nova imagem
+                const storageRef = ref(storage, `produtos/${id}/imagem`);
+                const metadata = { contentType: imagemProduto.mimetype };
+                await uploadBytes(storageRef, imagemProduto.buffer, metadata);
+
+                // Obter a nova URL da imagem
+                const downloadURL = await getDownloadURL(storageRef);
+                updateData.imagemURL = downloadURL; // Atualizar a URL da imagem no Firestore
+                console.log("Nova imagem enviada com sucesso.");
+            }
+
+            // Atualizar o documento do produto no Firestore
+            await updateDoc(produtoRef, updateData);
+            console.log("Produto atualizado com sucesso.");
+
+            res.redirect('/produtos');
+        } else {
+            res.send('Produto não encontrado.');
+        }
     } catch (error) {
         console.error("Erro ao editar produto:", error);
         res.render('editar-produto', { error: 'Erro ao editar produto: ' + error.message });
@@ -190,26 +257,3 @@ app.get('/editar-produto/:id', async (req, res) => {
     }
 });
 
-// Rota para atualizar um produto (POST)
-app.post('/editar-produto/:id', async (req, res) => {
-    const produtoId = req.params.id; // Captura o ID do produto da URL
-    const { nomeProduto, descricao, preco } = req.body; // Captura os novos dados do formulário
-
-    try {
-        // Referência ao documento do Firestore
-        const produtoRef = doc(db, 'produtos', produtoId);
-
-        // Atualizar o documento no Firestore
-        await updateDoc(produtoRef, {
-            nome: nomeProduto,
-            descricao: descricao,
-            preco: parseFloat(preco)
-        });
-
-        // Redireciona para a lista de produtos após a edição
-        res.redirect('/produtos');
-    } catch (error) {
-        console.error('Erro ao editar produto:', error);
-        res.send('Erro ao editar produto: ' + error.message);
-    }
-});
