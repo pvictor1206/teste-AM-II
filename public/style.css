@@ -637,3 +637,10 @@ h1, h2 {
 .swiper-pagination-bullet {
   background: #000;
 }
+
+.welcome-image {
+  display: block;
+  margin: 20px auto; /* Centraliza a imagem horizontalmente */
+  max-width: 100%; /* Garante que a imagem seja responsiva */
+  height: auto; /* Mantém a proporção da imagem */
+}

@@ -1,11 +1,13 @@
 extends layout
 
-
 block content
   .content
-  h1 Bem-vindo à WW Loja!
-  p Aqui você pode navegar entre os produtos e cadastrar novos itens.
+    h1 Bem-vindo à WW Loja!
+    p Aqui você pode navegar entre os produtos e cadastrar novos itens.
+    
+    // Adicionando a imagem entre o texto e os botões
+    img(src="/path/boasvindas.png" alt="Imagem de produtos" class="welcome-image")
 
-  // Botões para Produtos e Cadastro de Produtos
-  a.pure-button.pure-button-primary(href="/produtos") Ver Produtos
-  a.pure-button.pure-button-primary(href="/cadastro-produtos") Cadastrar Produtos
+    // Botões para Produtos e Cadastro de Produtos
+    a.pure-button.pure-button-primary(href="/produtos") Ver Produtos
+    a.pure-button.pure-button-primary(href="/cadastro-produtos") Cadastrar Produtos
