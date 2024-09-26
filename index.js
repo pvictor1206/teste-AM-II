@@ -355,7 +355,6 @@ app.post('/editar-produto-inline', upload.fields([{ name: 'imagemProduto', maxCo
 
         res.redirect('/produtos');
     } catch (error) {
-        console.error('Erro ao editar produtos:', error);
-        res.status(500).send('Erro ao editar produtos');
+        res.redirect('/produtos');
     }
 });

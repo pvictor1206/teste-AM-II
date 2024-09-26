@@ -29,8 +29,7 @@ block content
               // Botões ajustados com espaçamento
               .buttons
                 button.pure-button.pure-button-primary(type="submit" name="edit" value=produto.id) Salvar
-                form(action=`/excluir-produto/${produto.id}`, method="POST", onsubmit="return confirm('Tem certeza que deseja excluir este produto?');")
-                  button.pure-button.pure-button-danger(type="submit") Excluir
+                button.pure-button.pure-button-danger(type="submit" formaction=`/excluir-produto/${produto.id}` formmethod="POST") Excluir
     else
       p Nenhum produto disponível no momento.
 
