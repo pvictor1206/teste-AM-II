@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer'); // Middleware para lidar com uploads de arquivos
-const { auth, signInWithEmailAndPassword, db, storage, ref, uploadBytes, getDownloadURL, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, deleteObject } = require('./firebase');
+const { auth, signInWithEmailAndPassword, db, storage, ref, uploadBytes, getDownloadURL, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, deleteObject, createUserWithEmailAndPassword } = require('./firebase');
 const app = express();
 const port = 3000;
 
@@ -257,3 +257,29 @@ app.get('/editar-produto/:id', async (req, res) => {
     }
 });
 
+// Rota GET para exibir a página de configurações
+app.get('/settings', (req, res) => {
+    const user = auth.currentUser;
+
+    if (user) {
+        res.render('settings', { isAuthenticated: !!user, isHomePage: false });
+    } else {
+        res.redirect('/login'); // Redireciona para login se não estiver autenticado
+    }
+});
+
+// Rota POST para processar o formulário de criação de novo usuário
+app.post('/settings', async (req, res) => {
+    const { email, senha } = req.body;
+
+    try {
+        // Cria um novo usuário no Firebase Authentication
+        await createUserWithEmailAndPassword(auth, email, senha);
+
+        // Passar uma mensagem de sucesso para a view
+        res.render('settings', { successMessage: 'Administrador criado com sucesso!', isAuthenticated: true, isHomePage: false });
+    } catch (error) {
+        console.error('Erro ao criar usuário:', error);
+        res.render('settings', { error: 'Erro ao criar usuário: ' + error.message, isAuthenticated: true, isHomePage: false });
+    }
+});

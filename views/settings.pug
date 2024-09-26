@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  .content
+    h2 Configurações - Adicionar Novo Usuário
+
+    // Exibe mensagem de sucesso se um administrador foi criado
+    if successMessage
+      p.sucesso #{successMessage}
+
+    // Exibe erro, se houver
+    if error
+      p.erro #{error}
+
+    form.pure-form.pure-form-stacked(action="/settings", method="POST")
+      fieldset
+        label(for="email") Email:
+        input(type="email", id="email", name="email", required)
+        
+        label(for="senha") Senha:
+        input(type="password", id="senha", name="senha", required)
+        
+        button.pure-button.pure-button-primary(type="submit") Criar Usuário

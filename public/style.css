@@ -195,3 +195,9 @@ h1, h2 {
 .pure-form-stacked button.pure-button-primary:hover {
   background-color: #155b9a;
 }
+
+.sucesso {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 10px;
+}

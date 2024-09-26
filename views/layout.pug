@@ -10,13 +10,13 @@ html(lang="pt-br")
     header
       .pure-menu.pure-menu-horizontal
         if isHomePage
-          // Se estiver na página home, desativar o link
           a.pure-menu-heading.pure-menu-link.pure-menu-disabled(href="/home") WW Loja
         else
           a.pure-menu-heading.pure-menu-link(href="/home") WW Loja
         if isAuthenticated
           a.pure-menu-link(href="/produtos") Ver Produtos
           a.pure-menu-link(href="/cadastro-produtos") Cadastrar Produtos
+          a.pure-menu-link(href="/settings") Configurações  
           a.pure-menu-link.logout-button(href="/logout") Sair
     main
       block content
