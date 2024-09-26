@@ -311,3 +311,51 @@ app.post('/settings', async (req, res) => {
         res.render('settings', { error: 'Erro ao criar usuário: ' + error.message, isAuthenticated: true, isHomePage: false });
     }
 });
+
+// Rota para editar produto inline
+app.post('/editar-produto-inline', upload.fields([{ name: 'imagemProduto', maxCount: 1 }]), async (req, res) => {
+    try {
+        // Itera pelos produtos para salvar as edições
+        for (const key in req.body) {
+            const produtoId = key.split('_')[1]; // Extrai o ID do produto a partir do nome do campo
+
+            // Recupera o produto correspondente no Firestore
+            const produtoRef = doc(db, 'produtos', produtoId);
+            const produtoSnapshot = await getDoc(produtoRef);
+
+            if (produtoSnapshot.exists()) {
+                const produtoData = produtoSnapshot.data();
+
+                // Dados atualizados
+                const nome = req.body[`nomeProduto_${produtoId}`];
+                const descricao = req.body[`descricao_${produtoId}`];
+                const preco = parseFloat(req.body[`preco_${produtoId}`]);
+
+                // Monta o objeto de atualização
+                const updateData = { nome, descricao, preco };
+
+                // Se houver uma nova imagem, faz o upload
+                if (req.files[`imagemProduto_${produtoId}`]) {
+                    const imagemProduto = req.files[`imagemProduto_${produtoId}`][0];
+                    const storageRef = ref(storage, `produtos/${produtoId}/imagem`);
+                    const metadata = { contentType: imagemProduto.mimetype };
+
+                    // Faz o upload do novo arquivo de imagem
+                    await uploadBytes(storageRef, imagemProduto.buffer, metadata);
+
+                    // Obtém a URL de download da imagem
+                    const downloadURL = await getDownloadURL(storageRef);
+                    updateData.imagemURL = downloadURL; // Atualiza a URL da imagem no Firestore
+                }
+
+                // Atualiza o documento do produto
+                await updateDoc(produtoRef, updateData);
+            }
+        }
+
+        res.redirect('/produtos');
+    } catch (error) {
+        console.error('Erro ao editar produtos:', error);
+        res.status(500).send('Erro ao editar produtos');
+    }
+});

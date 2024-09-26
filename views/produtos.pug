@@ -4,18 +4,33 @@ block content
   .content
     h2 Produtos Disponíveis
     if produtos && produtos.length
-      .produtos-grid
-        each produto in produtos
-          .produto-card
-            if produto.imagemURL
-              img(src=produto.imagemURL alt=`Imagem de ${produto.nome}` width="200" height="200")
-            h3= produto.nome
-            p.descricao Descrição: #{produto.descricao}
-            p.preco Preço: R$ #{produto.preco}
-            .buttons
-              a.pure-button.pure-button-primary(href=`/editar-produto/${produto.id}`) Editar
-              form(action=`/excluir-produto/${produto.id}`, method="POST", onsubmit="return confirm('Tem certeza que deseja excluir este produto?');")
-                button.pure-button(type="submit") Excluir
+      form(action="/editar-produto-inline" method="POST" enctype="multipart/form-data")
+        .produtos-grid
+          each produto in produtos
+            .produto-card
+              if produto.imagemURL
+                img(src=produto.imagemURL alt=`Imagem de ${produto.nome}` width="200" height="200")
+              
+              // Melhorando layout com flexbox
+              .produto-detalhes
+                .detalhes-campos
+                  label Nome:
+                  input(type="text" name=`nomeProduto_${produto.id}` value=produto.nome)
+                .detalhes-campos
+                  label Descrição:
+                  textarea(name=`descricao_${produto.id}`)= produto.descricao
+                .detalhes-campos
+                  label Preço:
+                  input(type="number" step="0.01" name=`preco_${produto.id}` value=produto.preco)
+                .detalhes-campos
+                  label Nova imagem:
+                  input(type="file" name=`imagemProduto_${produto.id}` accept="image/*")
+              
+              // Botões ajustados com espaçamento
+              .buttons
+                button.pure-button.pure-button-primary(type="submit" name="edit" value=produto.id) Salvar
+                form(action=`/excluir-produto/${produto.id}`, method="POST", onsubmit="return confirm('Tem certeza que deseja excluir este produto?');")
+                  button.pure-button.pure-button-danger(type="submit") Excluir
     else
       p Nenhum produto disponível no momento.
 
