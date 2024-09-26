@@ -6,11 +6,13 @@ html(lang="pt-br")
     title #{title} - WW Loja
     link(rel="stylesheet", href="/pure-min.css")
     link(rel="stylesheet", href="/style.css")
+
   body
     header
       .pure-menu.pure-menu-horizontal
         if isHomePage
           a.pure-menu-heading.pure-menu-link.pure-menu-disabled(href="/home") WW Loja
+          a.pure-menu-link(href="/login") Entrar
         else
           a.pure-menu-heading.pure-menu-link(href="/home") WW Loja
         if isAuthenticated
@@ -23,3 +25,11 @@ html(lang="pt-br")
     footer
       .footer-content
         p &copy; 2024 WW Loja. Todos os direitos reservados.
+
+    // Adiciona o script do Swiper.js antes do fechamento do body
+    script(src="https://unpkg.com/swiper/swiper-bundle.min.js")
+
+    // Script para inicializar o Swiper
+    if isAuthenticated
+      script.
+        !{initializeSwiper}

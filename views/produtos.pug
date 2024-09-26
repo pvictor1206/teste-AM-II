@@ -8,7 +8,7 @@ block content
         each produto in produtos
           .produto-card
             if produto.imagemURL
-              img(src=produto.imagemURL alt="Imagem de #{produto.nome}" width="200" height="200") 
+              img(src=produto.imagemURL alt=`Imagem de ${produto.nome}` width="200" height="200")
             h3= produto.nome
             p.descricao Descrição: #{produto.descricao}
             p.preco Preço: R$ #{produto.preco}
@@ -18,3 +18,14 @@ block content
                 button.pure-button(type="submit") Excluir
     else
       p Nenhum produto disponível no momento.
+
+    // Navegação de páginas
+    .pagination
+      if currentPage > 1
+        a(href=`/produtos?page=${currentPage - 1}`) Anterior
+
+      each page in Array(totalPages).fill().map((_, i) => i + 1)
+        a(href=`/produtos?page=${page}`, class=(page === currentPage ? 'active' : ''))= page
+
+      if currentPage < totalPages
+        a(href=`/produtos?page=${currentPage + 1}`) Próxima

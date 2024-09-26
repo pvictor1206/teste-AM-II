@@ -10,9 +10,10 @@ app.set('views', './views');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-
 // Configuração do multer para armazenar a imagem temporariamente
 const upload = multer({ storage: multer.memoryStorage() });
+
+
 
 // Middleware para verificar autenticação e passar o estado para as views
 app.use((req, res, next) => {
@@ -28,10 +29,21 @@ app.use((req, res, next) => {
     next();
 });
 
+// Rotas e outros códigos permanecem os mesmos
 // Rota principal (Home)
-app.get('/', (req, res) => {
-    const user = auth.currentUser; // Verifica se há um usuário logado
-    res.render('index', { isHomePage: true, isAuthenticated: !!user }); // Definir isHomePage como true
+app.get('/', async (req, res) => {
+    try {
+        // Obtém os produtos do Firestore
+        const produtosSnapshot = await getDocs(collection(db, 'produtos'));
+        const produtos = produtosSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        res.render('index', { produtos: produtos.length > 0 ? produtos : [], isHomePage: true });
+    } catch (error) {
+        res.render('index', { produtos: [], error: 'Erro ao buscar produtos', isHomePage: true });
+    }
 });
 
 // Rota de login (GET)
@@ -91,17 +103,33 @@ app.post('/cadastro-produtos', upload.single('imagemProduto'), async (req, res) 
     }
 });
 
-// Rota para exibir produtos (GET)
+// Rota para exibir produtos (GET) com paginação
 app.get('/produtos', async (req, res) => {
-    const user = auth.currentUser; // Verifica se há um usuário logado
+    const user = auth.currentUser;
+    const page = parseInt(req.query.page) || 1; // Página atual
+    const limit = 20; // Limite de produtos por página
+    const startAt = (page - 1) * limit; // Determina o índice inicial
+
     try {
+        // Buscar todos os produtos
         const produtosSnapshot = await getDocs(collection(db, 'produtos'));
-        const produtos = produtosSnapshot.docs.map(doc => ({
+        const totalProdutos = produtosSnapshot.size;
+
+        // Calcular o número total de páginas
+        const totalPages = Math.ceil(totalProdutos / limit);
+
+        // Buscar apenas os produtos da página atual
+        const produtos = produtosSnapshot.docs.slice(startAt, startAt + limit).map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
 
-        res.render('produtos', { produtos, isAuthenticated: !!user, isHomePage: false });
+        res.render('produtos', { 
+            produtos, 
+            currentPage: page, 
+            totalPages, 
+            isAuthenticated: !!user 
+        });
     } catch (error) {
         res.render('produtos', { produtos: [], error: 'Erro ao buscar produtos', isAuthenticated: !!user });
     }
@@ -130,7 +158,7 @@ app.get('/home', (req, res) => {
         res.render('home', { isAuthenticated: true, isHomePage: true });
     } else {
         // Redireciona para login se não estiver autenticado
-        //res.redirect('/login');
+        res.redirect('/login');
     }
 });
 

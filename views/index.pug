@@ -2,22 +2,29 @@ extends layout
 
 block content
   .content
-    h1 Bem-vindo à WW Loja de Equipamentos de TI!
-    p Aqui você pode encontrar e cadastrar produtos de informática.
+    .banner-area
+      h1 Bem-vindo à WW Loja de Equipamentos de TI!
+      p Aqui você pode encontrar e cadastrar produtos de informática.
 
-    .login-container
-  h1 Login
-  if error
-    p.error= error
-  form.pure-form.pure-form-stacked(action="/login", method="post")
-    fieldset
-      .form-group
-        label(for="email") Email:
-        input(type="email", id="email", name="email", required)
-      .form-group
-        label(for="senha") Senha:
-        input(type="password", id="senha", name="senha", required)
-      .form-group
-        button.pure-button.pure-button-primary(type="submit") Entrar
+    .search-bar
+      input(type="text", placeholder="Buscar produtos")
+      button(type="button") Buscar
 
+    .promo-and-products
+      .promo-section
+        h2 Ofertas do dia
+        .promo-container
+          img(src="/path/banner1.png", alt="Oferta 1")
+          img(src="/path/banner2.png", alt="Oferta 2")
+          img(src="/path/banner3.png", alt="Oferta 3")
 
+      section.produtos-cadastrados
+        h2 Produtos Cadastrados
+        .produtos-grid
+          each produto in produtos
+            .produto-card
+              if produto.imagemURL
+                img(src=produto.imagemURL, alt=produto.nome)
+              h3= produto.nome
+              p.descricao= produto.descricao
+              span.preco= 'R$ ' + produto.preco.toFixed(2)
