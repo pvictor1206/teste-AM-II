@@ -6,21 +6,18 @@ block content
       h1 Bem-vindo à WW Loja de Equipamentos de TI!
       p Aqui você pode encontrar e cadastrar produtos de informática.
 
-    .search-and-cart
-      .search-bar
-        input(type="text", id="buscar", placeholder="Buscar produtos")
-        button(type="button", onclick="buscarProduto()") Buscar
-
-      .cart-icon
-        h2 Seu Carrinho
-        ul#carrinho-itens
-          if carrinho.length > 0
-            each item in carrinho
-              li #{item.nome} - R$ #{item.preco.toFixed(2)}
-          else
-            p Carrinho vazio
-        p.total-preco Total: R$ <span id="total-preco">
-          = (carrinho.reduce((total, item) => total + item.preco, 0)).toFixed(2)
+    .cart-icon
+      h2 Seu Carrinho
+      .carrinho-itens-container
+        if carrinho.length > 0
+          each item in carrinho
+            .carrinho-item
+              span.carrinho-item-nome #{item.nome} (Qtd: #{item.quantidade})
+              span.carrinho-item-preco R$ #{(parseFloat(item.preco) * item.quantidade).toFixed(2)}
+        else
+          p Carrinho vazio
+      p.total-preco Total: R$ <span id="total-preco">
+        = (carrinho.reduce((total, item) => total + (parseFloat(item.preco) * item.quantidade), 0)).toFixed(2)
 
     .promo-and-products
       .promo-section
@@ -30,15 +27,18 @@ block content
           img(src="/path/banner2.png", alt="Oferta 2")
           img(src="/path/banner3.png", alt="Oferta 3")
 
-      section.produtos-cadastrados
-        h2 Produtos Cadastrados
-        .produtos-grid
-          each produto in produtos
-            .produto-card
-              if produto.imagemURL
-                img(src=produto.imagemURL, alt=produto.nome)
-              h3= produto.nome
-              p.descricao= produto.descricao
-              span.preco= 'R$ ' + produto.preco.toFixed(2)
-              button.pure-button.pure-button-primary(type="button", onclick=`adicionarAoCarrinho('${produto.id}', '${produto.nome}', ${produto.preco})`) Adicionar ao Carrinho
-
+    section.produtos-cadastrados
+      h2 Produtos Cadastrados
+      .produtos-grid
+        each produto in produtos
+          .produto-card
+            if produto.imagemURL
+              img(src=produto.imagemURL, alt=produto.nome)
+            h3= produto.nome
+            p.descricao= produto.descricao
+            span.preco= 'R$ ' + parseFloat(produto.preco).toFixed(2)
+            form(action="/adicionar-ao-carrinho" method="POST")
+              input(type="hidden", name="id", value=produto.id)
+              input(type="hidden", name="nome", value=produto.nome)
+              input(type="hidden", name="preco", value=produto.preco)
+              button.pure-button.pure-button-primary(type="submit") Adicionar ao Carrinho

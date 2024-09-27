@@ -13,8 +13,6 @@ app.use(express.static('public'));
 // Configuração do multer para armazenar a imagem temporariamente
 const upload = multer({ storage: multer.memoryStorage() });
 
-
-
 // Middleware para verificar autenticação e passar o estado para as views
 app.use((req, res, next) => {
     const user = auth.currentUser;
@@ -29,32 +27,97 @@ app.use((req, res, next) => {
     next();
 });
 
+const fs = require('fs');
+const path = require('path');
+
+// Caminho do arquivo JSON onde o carrinho será armazenado
+const carrinhoFilePath = path.join(__dirname, 'carrinho.json');
+
+// Função para ler o arquivo JSON
+function lerCarrinho() {
+    try {
+        if (!fs.existsSync(carrinhoFilePath)) {
+            // Se o arquivo não existir, cria um novo carrinho vazio
+            fs.writeFileSync(carrinhoFilePath, JSON.stringify([]), 'utf8');
+        }
+        const data = fs.readFileSync(carrinhoFilePath, 'utf8');
+        return JSON.parse(data);
+    } catch (err) {
+        console.error('Erro ao ler o arquivo JSON:', err);
+        return [];
+    }
+}
+
+// Função para salvar o carrinho no arquivo JSON
+function salvarCarrinho(carrinho) {
+    try {
+        fs.writeFileSync(carrinhoFilePath, JSON.stringify(carrinho, null, 2), 'utf8');
+    } catch (err) {
+        console.error('Erro ao salvar o arquivo JSON:', err);
+    }
+}
+
+// Rota principal para exibir produtos e o carrinho
 app.get('/', async (req, res) => {
     try {
-        // Obtém os produtos do Firestore
+        // Ler o carrinho do arquivo JSON
+        const carrinho = lerCarrinho();
+
+        // Simula a leitura dos produtos do Firestore
         const produtosSnapshot = await getDocs(collection(db, 'produtos'));
         const produtos = produtosSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
 
-        // Inicialize o carrinho como um array vazio, se ainda não existir
-        const carrinho = []; // ou recupere de uma sessão ou banco de dados, se necessário
-
+        // Renderiza a página e envia os produtos e o carrinho
         res.render('index', { 
             produtos: produtos.length > 0 ? produtos : [], 
             carrinho: carrinho, // Envia o carrinho para a view
-            isHomePage: true 
+            isHomePage: true,
+            isAuthenticated: false // Define como falso já que não estamos usando autenticação
         });
     } catch (error) {
         res.render('index', { 
             produtos: [], 
-            carrinho: [], // Certifique-se de enviar o carrinho vazio no caso de erro
+            carrinho: [], 
             error: 'Erro ao buscar produtos', 
-            isHomePage: true 
+            isHomePage: true
         });
     }
 });
+
+// Rota para adicionar um produto ao carrinho
+app.post('/adicionar-ao-carrinho', (req, res) => {
+    try {
+        const { id, nome, preco } = req.body;
+
+        // Ler o arquivo de carrinho existente
+        const carrinho = lerCarrinho();
+
+        // Verifica se o produto já está no carrinho
+        const produtoExistente = carrinho.find(item => item.id === id);
+        if (produtoExistente) {
+            // Se o produto já existe, aumenta a quantidade
+            produtoExistente.quantidade += 1;
+        } else {
+            // Se o produto não existe, adiciona-o ao carrinho
+            carrinho.push({ id, nome, preco: parseFloat(preco), quantidade: 1 });
+        }
+
+        // Salva o carrinho atualizado no arquivo JSON
+        salvarCarrinho(carrinho);
+
+        res.redirect('/');
+    } catch (error) {
+        console.error('Erro ao adicionar ao carrinho:', error);
+        res.status(500).send('Erro ao adicionar produto ao carrinho');
+    }
+});
+
+
+
+
 
 
 // Rota de login (GET)
