@@ -212,7 +212,7 @@ app.get('/produtos', async (req, res) => {
 // Rota de logout
 app.get('/logout', (req, res) => {
     auth.signOut().then(() => {
-        res.redirect('/login');
+        res.redirect('/');
     }).catch((error) => {
         res.send('Erro ao fazer logout: ' + error.message);
     });

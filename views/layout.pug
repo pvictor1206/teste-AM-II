@@ -14,11 +14,12 @@ html(lang="pt-br")
       .pure-menu.pure-menu-horizontal
         if isHomePage
           a.pure-menu-heading.pure-menu-link.pure-menu-disabled(href="/home") WW Loja
-          a.pure-menu-link(href="/login") Entrar
+          if !isAuthenticated
+            a.pure-menu-link(href="/login") Entrar
         else
           a.pure-menu-heading.pure-menu-link(href="/home") WW Loja
         if isAuthenticated
-          a.pure-menu-link(href="/produtos") Ver Produtos
+          a.pure-menu-link(href="/produtos") Produtos
           a.pure-menu-link(href="/cadastro-produtos") Cadastrar Produtos
           a.pure-menu-link(href="/settings") Configurações  
           a.pure-menu-link.logout-button(href="/logout") Sair

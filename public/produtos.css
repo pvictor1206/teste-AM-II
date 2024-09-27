@@ -26,6 +26,33 @@
   color: #28a745;
 }
 
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.pure-button-secondary {
+  background-color: #ccc;
+  color: #333;
+}
+
+.pure-button-secondary:hover {
+  background-color: #bbb;
+  color: #000;
+}
+
+
 .total-preco {
   margin-top: 20px;
   font-size: 1.3em;
