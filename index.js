@@ -29,8 +29,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Rotas e outros códigos permanecem os mesmos
-// Rota principal (Home)
 app.get('/', async (req, res) => {
     try {
         // Obtém os produtos do Firestore
@@ -40,11 +38,24 @@ app.get('/', async (req, res) => {
             ...doc.data()
         }));
 
-        res.render('index', { produtos: produtos.length > 0 ? produtos : [], isHomePage: true });
+        // Inicialize o carrinho como um array vazio, se ainda não existir
+        const carrinho = []; // ou recupere de uma sessão ou banco de dados, se necessário
+
+        res.render('index', { 
+            produtos: produtos.length > 0 ? produtos : [], 
+            carrinho: carrinho, // Envia o carrinho para a view
+            isHomePage: true 
+        });
     } catch (error) {
-        res.render('index', { produtos: [], error: 'Erro ao buscar produtos', isHomePage: true });
+        res.render('index', { 
+            produtos: [], 
+            carrinho: [], // Certifique-se de enviar o carrinho vazio no caso de erro
+            error: 'Erro ao buscar produtos', 
+            isHomePage: true 
+        });
     }
 });
+
 
 // Rota de login (GET)
 app.get('/login', (req, res) => {

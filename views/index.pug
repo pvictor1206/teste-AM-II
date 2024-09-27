@@ -6,9 +6,21 @@ block content
       h1 Bem-vindo à WW Loja de Equipamentos de TI!
       p Aqui você pode encontrar e cadastrar produtos de informática.
 
-    .search-bar
-      input(type="text", placeholder="Buscar produtos")
-      button(type="button") Buscar
+    .search-and-cart
+      .search-bar
+        input(type="text", id="buscar", placeholder="Buscar produtos")
+        button(type="button", onclick="buscarProduto()") Buscar
+
+      .cart-icon
+        h2 Seu Carrinho
+        ul#carrinho-itens
+          if carrinho.length > 0
+            each item in carrinho
+              li #{item.nome} - R$ #{item.preco.toFixed(2)}
+          else
+            p Carrinho vazio
+        p.total-preco Total: R$ <span id="total-preco">
+          = (carrinho.reduce((total, item) => total + item.preco, 0)).toFixed(2)
 
     .promo-and-products
       .promo-section
@@ -28,3 +40,5 @@ block content
               h3= produto.nome
               p.descricao= produto.descricao
               span.preco= 'R$ ' + produto.preco.toFixed(2)
+              button.pure-button.pure-button-primary(type="button", onclick=`adicionarAoCarrinho('${produto.id}', '${produto.nome}', ${produto.preco})`) Adicionar ao Carrinho
+

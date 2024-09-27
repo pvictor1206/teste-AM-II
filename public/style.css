@@ -644,3 +644,41 @@ h1, h2 {
   max-width: 100%; /* Garante que a imagem seja responsiva */
   height: auto; /* Mantém a proporção da imagem */
 }
+
+.produto-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  text-align: center;
+}
+
+.produto-card img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.produto-card h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.produto-card p.descricao {
+  font-size: 14px;
+  color: #666;
+}
+
+.produto-card span.preco {
+  display: block;
+  font-size: 16px;
+  color: #1f8dd6;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.produto-card button.pure-button-primary {
+  margin-top: 10px;
+}
